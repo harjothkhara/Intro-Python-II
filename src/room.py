@@ -1,5 +1,6 @@
 # Implement a class to hold room information. This should have name and
 # description attributes.
+from item import Item
 
 
 class Room():
@@ -10,3 +11,4 @@ class Room():
         self.e_to = None
         self.s_to = None
         self.w_to = None
+        self.items = [Item('item0', "default item in every room")]
