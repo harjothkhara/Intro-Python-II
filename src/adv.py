@@ -49,33 +49,43 @@ player = Player('Tom', room['outside'])
 # * Prints the current description (the textwrap module might be useful here).
 command = None
 
-to_room = {
-    'n': player.current_room.n_to,
-    's': player.current_room.s_to,
-    'e': player.current_room.e_to,
-    'w': player.current_room.w_to,
-}
-
 while not command == 'q':
-
+    # Room where player is at
     print(f"\n{player.name} is at: {player.current_room.name}\n")
 
+    # Description of room where player is at
     wrapper = textwrap.TextWrapper(width=50)
     description = wrapper.wrap(text=player.current_room.description)
     print("description:")
     for line in description:
         print(line)
 
-    print('\n')
+    # list of items present in the room where player is at
+    print('\nitems in this room:')
+    for item in player.current_room.items:
+        print(item.name)
+    print("************")
 
+    # linking user input to possible direction from the player current room
+    to_room = {
+        'n': player.current_room.n_to,
+        's': player.current_room.s_to,
+        'e': player.current_room.e_to,
+        'w': player.current_room.w_to,
+    }
 
 # * Waits for user input and decides what to do.
 # If the user enters a cardinal direction, attempt to move to the room there.
 # Print an error message if the movement isn't allowed.
+# if the user enters "q", quit the game.
 
     command = input(
-        "enter directions: (n)orth, (s)outh, (e)ast, (w)est or q to quit: ")
+        "enter directions: (n)orth, (s)outh, (e)ast, (w)est\n"
+        "choose action: get/take item, drop item\n"
+        "or (q)uit: "
+    ).split('')
 
+    # change all commands to lower case
     if command in ['n', 's', 'e', 'w']:
         if(to_room[command] == None):
             print("\nMOVE NOT ALLOWED. TRY AGAIN..")
