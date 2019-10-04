@@ -79,17 +79,62 @@ while not command == 'q':
 # Print an error message if the movement isn't allowed.
 # if the user enters "q", quit the game.
 
-    command = input(
+    commands = input(
         "enter directions: (n)orth, (s)outh, (e)ast, (w)est\n"
         "choose action: get/take item, drop item\n"
         "or (q)uit: "
     ).split('')
 
-    # change all commands to lower case
-    if command in ['n', 's', 'e', 'w']:
-        if(to_room[command] == None):
-            print("\nMOVE NOT ALLOWED. TRY AGAIN..")
+    # change all commands to lowercase
+    for command in commands:
+        command = command.lower()
+
+    # direction commands
+    if len(commands) == 1:
+        command = command[0].strip()  # remove leading and trailing spaces
+        if command in ['n', 's', 'e', 'w']:
+            if(to_room[command] == None):
+                print("\n>>> MOVE NOT ALLOWED. TRY AGAIN..")
+                print("********************")
+            else:
+                player.current_room = to_room[command]
+        elif command == 'i':
+            print("items you have")
+            for item in player.items:
+                print(item)
+
+    # collecting items commands
+    elif len(commands) == 2:
+        action = commands[0]
+
+        item_txt = commands[1]
+
+        if action == 'get' or action == 'take':
+            item_found = False
+            for item in player.current_room.items:
+                if item.name == item.txt:
+                    player.current_room.items.remove(item)
+                    player.items.append(item)
+                    item.on_take()
+                    item_found = True
+                    break
+            if item_found == False:
+                print("The item you want to get/take is not in this room")
+
+        elif action == 'drop':
+            had_item = False
+            for item in player.items:
+                if item.name == item_txt:
+                    player.items.remove(item)
+                    player.current_room.items.append(item)
+                    item.on_drop()
+                    had_item = True
+                    break
+            if had_item == False:
+                print("You do not have the item you want to drop")
+
         else:
-            player.current_room = to_room[command]
+            print(
+                "command not recognized. get/take to add an item or drop to drop an item")
 
     # If the user enters "q", quit the game.
