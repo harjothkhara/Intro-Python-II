@@ -1,4 +1,6 @@
 from room import Room
+from player import Player
+import textwrap
 
 # Declare all the rooms
 
@@ -39,13 +41,100 @@ room['treasure'].s_to = room['narrow']
 
 # Make a new player object that is currently in the 'outside' room.
 
+player = Player('Tom', room['outside'])
+
 # Write a loop that:
 #
 # * Prints the current room name
 # * Prints the current description (the textwrap module might be useful here).
+command = None
+
+while not command == 'q':
+    # Room where player is at
+    print(f"\n{player.name} is at: {player.current_room.name}\n")
+
+    # Description of room where player is at
+    wrapper = textwrap.TextWrapper(width=50)
+    description = wrapper.wrap(text=player.current_room.description)
+    print("description:")
+    for line in description:
+        print(line)
+
+    # list of items present in the room where player is at
+    print('\nitems in this room:')
+    for item in player.current_room.items:
+        print(item.name)
+    print("************")
+
+    # linking user input to possible direction from the player current room
+    to_room = {
+        'n': player.current_room.n_to,
+        's': player.current_room.s_to,
+        'e': player.current_room.e_to,
+        'w': player.current_room.w_to,
+    }
+
 # * Waits for user input and decides what to do.
-#
 # If the user enters a cardinal direction, attempt to move to the room there.
 # Print an error message if the movement isn't allowed.
-#
-# If the user enters "q", quit the game.
+# if the user enters "q", quit the game.
+
+    commands = input(
+        "enter directions: (n)orth, (s)outh, (e)ast, (w)est\n"
+        "choose action: get/take item, drop item\n"
+        "or (q)uit: "
+    ).split('')
+
+    # change all commands to lowercase
+    for command in commands:
+        command = command.lower()
+
+    # direction commands
+    if len(commands) == 1:
+        command = command[0].strip()  # remove leading and trailing spaces
+        if command in ['n', 's', 'e', 'w']:
+            if(to_room[command] == None):
+                print("\n>>> MOVE NOT ALLOWED. TRY AGAIN..")
+                print("********************")
+            else:
+                player.current_room = to_room[command]
+        elif command == 'i':
+            print("items you have")
+            for item in player.items:
+                print(item)
+
+    # collecting items commands
+    elif len(commands) == 2:
+        action = commands[0]
+
+        item_txt = commands[1]
+
+        if action == 'get' or action == 'take':
+            item_found = False
+            for item in player.current_room.items:
+                if item.name == item.txt:
+                    player.current_room.items.remove(item)
+                    player.items.append(item)
+                    item.on_take()
+                    item_found = True
+                    break
+            if item_found == False:
+                print("The item you want to get/take is not in this room")
+
+        elif action == 'drop':
+            had_item = False
+            for item in player.items:
+                if item.name == item_txt:
+                    player.items.remove(item)
+                    player.current_room.items.append(item)
+                    item.on_drop()
+                    had_item = True
+                    break
+            if had_item == False:
+                print("You do not have the item you want to drop")
+
+        else:
+            print(
+                "command not recognized. get/take to add an item or drop to drop an item")
+
+    # If the user enters "q", quit the game.
